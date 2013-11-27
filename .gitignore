@@ -15,3 +15,4 @@ build/output/*.json*
 build/output/*.tgz*
 build/output/.npmignore
 .idea
+*.swp
