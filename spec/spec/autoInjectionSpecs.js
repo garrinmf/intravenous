@@ -117,7 +117,7 @@ describe("AutoInjection", function() {
         });
     });
 
-    describe("passes in extra parameters", function() {
+    describe("does not autoinject if extra parameters are passed in", function() {
         beforeEach(function() {
             this.b  = function (a) {
                 this.a = a;
@@ -125,7 +125,7 @@ describe("AutoInjection", function() {
             };
             
             this.container.register("b", this.b);
-            this.retrievedB = this.container.get("b", "extra1", "extra2");
+            this.retrievedB = this.container.get("b", "extra1", "extra2", "extra3");
         });
 
         it("to inject the correct number of dependencies", function() {
@@ -133,10 +133,9 @@ describe("AutoInjection", function() {
         });
 
         it("to be injected", function() {
-            expect(this.retrievedB.arguments[0]).toBe(this.a);
-            expect(this.retrievedB.arguments[1]).toBe("extra1");
-            expect(this.retrievedB.arguments[2]).toBe("extra2");
+            expect(this.retrievedB.arguments[0]).toBe("extra1");
+            expect(this.retrievedB.arguments[1]).toBe("extra2");
+            expect(this.retrievedB.arguments[2]).toBe("extra3");
         });
     });
-
 });
