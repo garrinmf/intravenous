@@ -298,23 +298,36 @@
 		// Otherwise, we simply return the registered value.
 		if (reg.value instanceof Function) {
 			// The registered value is a constructor, so we need to construct the object and inject all the dependencies.
-			var injections = reg.value["$inject"];
-                        if (!injections && extraInjections.length <=0) {
-                            injections = reg.value.toString()
+			var injections = reg.value.$inject;
+                        var injected = {};
+                        var parameters = reg.value.toString()
                                 .replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg, '')
                                 .match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)[1]
                                 .split(/,/);
+
+                        if (extraInjections.length === 1 && (typeof extraInjections[0] === "object" || (typeof extraInjections[0] === "function")) && Object.keys(extraInjections[0]).every(function(prop) { return parameters.indexOf(prop) >= 0; })){ 
+                            var injectedObject = extraInjections.pop();
+                            Object.keys(injectedObject).forEach(function(key) { injected[key] = injectedObject[key]; });
+                        }
+
+                        if (!injections && extraInjections.length <=0) {
+                            injections = parameters;
                             if (injections[0] === "") 
                             {
                                 injections = null;
                             }
                         }
                         var resolvedInjections = [];
-			if (injections instanceof Array) {
-				for (var t=0,len = injections.length;t<len;t++) {
-					var injectionKey = injections[t];
-					resolvedInjections.push(get(container, injectionKey, []));
-				}
+                        if (injections instanceof Array) {
+                            for (var t=0,len = injections.length;t<len;t++) {
+                                var injectionKey = injections[t];
+                                if (injected[injectionKey]){
+                                    resolvedInjections.push(injected[injectionKey]);
+                                }
+                                else {
+                                    resolvedInjections.push(get(container, injectionKey, []));
+                                }
+                            }
 			}
 
 			var InjectedInstance = function() {};

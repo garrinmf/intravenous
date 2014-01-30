@@ -138,4 +138,29 @@ describe("AutoInjection", function() {
             expect(this.retrievedB.arguments[2]).toBe("extra3");
         });
     });
+
+    describe("does support a hash object to autoinject extra parameters", function() {
+        beforeEach(function() {
+            this.test = function(a, b, c) {
+                this.a = a;
+                this.b = b;
+                this.c = c;
+            };
+
+
+            this.container.register("test", this.test);
+
+            this.retrieved = this.container.get("test", {b: "b", c: "c"});
+        });
+
+        it("should pull from registered and passed", function () {
+            expect(this.retrieved).toBeDefined();
+            expect(this.retrieved.a).toBeDefined();
+            expect(this.retrieved.b).toBeDefined();
+            expect(this.retrieved.c).toBeDefined();
+
+            expect(this.retrieved.b).toEqual("b");
+            expect(this.retrieved.c).toEqual("c");
+        });
+    });
 });
